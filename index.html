@@ -725,7 +725,7 @@
           </div>
           <div style="font-size:11px;color:var(--text3);padding:8px 10px;background:var(--bg);border-radius:6px;font-family:var(--font-mono);margin-top:8px;line-height:1.6">
             📁 Cada reunião é salva como arquivo separado em:<br>
-            <span style="color:#93c5fd">Google Drive/GestaoReunioes/reunioes.json</span>
+            <span style="color:#93c5fd">Google Drive/GestaoSUBGD/subgd.json</span>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
             <button class="btn btn-green btn-sm" id="btn-od-sync-now" style="flex:1;justify-content:center;min-width:110px">🔄 Sincronizar agora</button>
@@ -942,10 +942,10 @@ let deleteTarget = null;
 
 // ===== GOOGLE DRIVE — GOOGLE IDENTITY SERVICES + DRIVE API =====
 // Requer hospedagem em https:// com Client ID OAuth de Aplicativo da Web.
-// Os dados são salvos em Google Drive/GestaoReunioes/reunioes.json
+// Os dados são salvos em Google Drive/GestaoSUBGD/subgd.json
 
-const GD_FOLDER = 'GestaoReunioes';
-const GD_FILENAME = 'reunioes.json';
+const GD_FOLDER = 'GestaoSUBGD';
+const GD_FILENAME = 'subgd.json';
 const GD_SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 const DRIVE_API = 'https://www.googleapis.com/drive/v3';
 const DRIVE_UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
