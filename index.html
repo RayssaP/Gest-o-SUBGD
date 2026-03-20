@@ -930,8 +930,8 @@
 
 <script>
 // ===== STATE =====
-let meetings = JSON.parse(localStorage.getItem('reunioes-data') || '[]');
-let settings = JSON.parse(localStorage.getItem('reunioes-settings') || '{}');
+let meetings = JSON.parse(localStorage.getItem('gestao-subgd-data') || '[]');
+let settings = JSON.parse(localStorage.getItem('gestao-subgd-settings') || '{}');
 let selectedId = null;
 let currentView = 'empty';
 let filterStatus = 'Todas';
@@ -1162,7 +1162,7 @@ async function odLoadAll() {
     if (!r.ok) throw new Error('Não foi possível baixar as reuniões do Drive.');
     const data = await r.json();
     meetings = Array.isArray(data) ? data : (data.meetings || []);
-    localStorage.setItem('reunioes-data', JSON.stringify(meetings));
+    localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
     renderSidebar();
     renderDashboard();
     settings.odLastSync = new Date().toISOString();
@@ -1271,8 +1271,8 @@ function updateOdUI() {
 }
 
 // ── Override save ──
-function save() { localStorage.setItem('reunioes-data', JSON.stringify(meetings)); }
-function saveSettings() { localStorage.setItem('reunioes-settings', JSON.stringify(settings)); }
+function save() { localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings)); }
+function saveSettings() { localStorage.setItem('gestao-subgd-settings', JSON.stringify(settings)); }
 
 // ===== TEMA (claro / escuro / sistema) =====
 function applyTheme(theme) {
@@ -1601,7 +1601,7 @@ function renderDetail(m) {
       const meeting = meetings.find(x => x.id === m.id);
       if (!meeting || !meeting.actions[idx]) return;
       meeting.actions[idx].done = !meeting.actions[idx].done;
-      localStorage.setItem('reunioes-data', JSON.stringify(meetings));
+      localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
       if (odTokenData) odSaveMeeting(meeting);
       renderSidebar();
       renderDetail(meeting);
@@ -1631,7 +1631,7 @@ function renderDetail(m) {
           email: document.getElementById('edit-p-email').value.trim(),
           phone: document.getElementById('edit-p-phone').value.trim()
         };
-        localStorage.setItem('reunioes-data', JSON.stringify(meetings));
+        localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
         if (odTokenData) odSaveMeeting(meeting);
         document.getElementById('modal-edit-participant').classList.add('hidden');
         renderSidebar();
@@ -1642,7 +1642,7 @@ function renderDetail(m) {
       document.getElementById('btn-edit-participant-delete').onclick = () => {
         if (!confirm(`Remover "${p.name}" da reunião?`)) return;
         meeting.participants.splice(idx, 1);
-        localStorage.setItem('reunioes-data', JSON.stringify(meetings));
+        localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
         if (odTokenData) odSaveMeeting(meeting);
         document.getElementById('modal-edit-participant').classList.add('hidden');
         renderSidebar();
@@ -1673,7 +1673,7 @@ function renderDetail(m) {
           deadline:    document.getElementById('edit-action-deadline').value,
           done:        document.getElementById('edit-action-done').checked
         };
-        localStorage.setItem('reunioes-data', JSON.stringify(meetings));
+        localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
         if (odTokenData) odSaveMeeting(meeting);
         document.getElementById('modal-edit-action').classList.add('hidden');
         renderSidebar();
