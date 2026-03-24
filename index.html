@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Gestão SUBGD</title>
+<title>Sistema de Gestão da SUBGD</title>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -171,6 +171,7 @@
 
   /* GRID HELPERS */
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-pauta { display: grid; grid-template-columns: 1fr; gap: 20px; }
   .grid2auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 
   /* SECTION CARD */
@@ -252,6 +253,26 @@
   .doc-name { font-size: 14px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .doc-desc { font-size: 12px; color: var(--text3); }
 
+  /* RICH TEXT */
+  .rt-wrap { border:1px solid var(--bg3); border-radius:10px; overflow:hidden; background:#F8FAFC; display:flex; flex-direction:column; min-height:240px; resize:vertical; }
+  .rt-toolbar { display:flex; flex-wrap:wrap; gap:6px; padding:10px; border-bottom:1px solid var(--bg3); background:var(--bg2); flex:0 0 auto; }
+  .rt-btn { min-width:34px; height:34px; padding:0 10px; border:1px solid var(--bg3); border-radius:8px; background:var(--bg2); color:var(--text2); font-size:13px; font-family:var(--font-mono); }
+  .rt-btn:hover { background:var(--bg3); }
+   .rt-stage { position:relative; flex:1 1 auto; min-height:180px; background:#fff; }
+  .rt-editor { position:relative; z-index:1; min-height:180px; height:auto; padding:12px 14px; outline:none; color:var(--text); line-height:1.7; font-size:15px; overflow:visible; background:transparent; }
+  .rt-editor[data-placeholder]:empty:before { content: attr(data-placeholder); color: var(--text3); }
+  .rt-editor ul, .rt-editor ol { padding-left: 22px; margin: 8px 0; }
+  .rt-editor p { margin: 0 0 10px; }
+  .rt-editor p:last-child { margin-bottom: 0; }
+  .rt-editor.ink-mode { caret-color: transparent; user-select: none; }
+  .rt-ink-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; z-index:2; touch-action:none; cursor:crosshair; background:transparent; pointer-events:none; }
+  .rt-ink-canvas.ink-enabled { pointer-events:auto; }
+  .rich-content { font-size:15px; line-height:1.8; color:#475569; }
+  .rich-content ul, .rich-content ol { padding-left: 22px; margin: 8px 0; }
+  .rich-content p { margin: 0 0 10px; }
+  .rich-content p:last-child { margin-bottom: 0; }
+
+
   /* DASHBOARD */
   .dash { padding: 32px 40px; max-width: 960px; margin: 0 auto; overflow-y: auto; }
   .dash-greeting { margin-bottom: 28px; }
@@ -322,7 +343,7 @@
     background: none; border: none; padding: 6px; cursor: pointer;
     width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
   }
-  @media (max-width: 768px) { .btn-hamburger { display: flex; } }
+  @media (max-width: 1024px) { .btn-hamburger { display: flex; } }
   .btn-hamburger span {
     display: block; width: 20px; height: 2px;
     background: var(--text2); border-radius: 2px; transition: all 0.25s;
@@ -349,7 +370,53 @@
     .modal      { min-width: 360px; }
   }
 
-  /* ── TABLET PORTRAIT  ≤ 768px ── */
+  /* ── TABLET PORTRAIT  769px–1024px — sidebar como drawer, conteúdo tela cheia ── */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    /* Sidebar vira drawer sobreposto */
+    #sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: 300px; min-width: 0;
+      z-index: 200;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+      box-shadow: 4px 0 28px rgba(0,0,0,0.18);
+    }
+    #sidebar.open  { transform: translateX(0); }
+    #sidebar-overlay { z-index: 199; }
+
+    /* Main ocupa largura total */
+    #main    { overflow: hidden; }
+    #content { overflow-y: auto; flex: 1; }
+
+    /* Views em altura total */
+    #view-empty  { height: calc(100vh - 64px); }
+    #view-detail { overflow-y: auto; height: calc(100vh - 64px); }
+    #view-form   { overflow-y: auto; height: calc(100vh - 64px); }
+
+    /* Padding confortável para tablet */
+    .dash        { padding: 24px 32px 60px; }
+    #detail-view { padding: 24px 32px 60px; max-width: 100%; }
+    #form-view   { padding: 22px 32px 60px; max-width: 100%; }
+
+    /* Grids tablet portrait */
+    .kpi-grid  { grid-template-columns: repeat(2, 1fr); }
+    .dash-row  { grid-template-columns: 1fr; gap: 14px; }
+    .dash-row3 { grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid2     { grid-template-columns: 1fr 1fr; }
+
+    /* Tela de detalhe mais confortável no tablet */
+    .detail-header { flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+    .detail-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+    .grid-pauta { grid-template-columns: 1fr; gap: 14px; }
+    .section-card { margin-bottom: 14px; }
+  }
+
+  /* ── MOBILE  ≤ 768px ── */
+  @media (max-width: 1100px) {
+    /* Na visualização de reunião, empilha pauta e anotações em tablets */
+    .grid-pauta { grid-template-columns: 1fr; gap: 16px; }
+  }
+
   @media (max-width: 768px) {
     /* Header — duas linhas no mobile */
     #header {
@@ -488,119 +555,131 @@
 .dash-animate:nth-child(3) { animation-delay: 0.1s; }
 .dash-animate:nth-child(4) { animation-delay: 0.15s; }
 
+/* ===== INK / CANETA ===== */
+.ink-btn-active { background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
+.ink-preview { max-width:100%; border:1px solid var(--bg3); border-radius:10px; background:#fff; display:block; }
+body.dark .rt-stage { background:#fff; }
+body.dark .rt-editor { background:transparent !important; }
+
 /* ===== PRINT / PDF ===== */
 @media print {
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box !important; }
 
-  body, html { overflow: visible !important; height: auto !important; background: #fff !important; }
+  body, html { overflow: visible !important; height: auto !important; background: #fff !important; margin: 0 !important; padding: 0 !important; }
   #header, #sidebar, #sidebar-overlay, #toast,
   .detail-actions, #detail-back,
   .action-toggle-btn, .action-edit-btn,
   .participant-edit-btn,
   .modal-overlay { display: none !important; }
 
-  #app { display: block !important; }
-  #main { display: block !important; overflow: visible !important; }
-  #content { overflow: visible !important; }
+  #app, #main, #content { display: block !important; overflow: visible !important; height: auto !important; width: 100% !important; }
   #view-detail { display: block !important; overflow: visible !important; height: auto !important; }
   #view-empty, #view-form { display: none !important; }
 
   #detail-view {
-    padding: 0 !important; max-width: 100% !important;
+    padding: 0 !important;
+    max-width: 100% !important;
     font-family: Georgia, serif !important;
     color: #1E293B !important;
+    width: 100% !important;
   }
 
-  /* Cabeçalho do PDF */
+  /* Cabeçalho */
   .print-header {
     display: flex !important;
     justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 16px;
-    border-bottom: 3px solid #F59E0B;
-    margin-bottom: 24px;
+    align-items: center;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #F59E0B;
+    margin-bottom: 10px;
   }
-  .print-logo {
-    display: flex !important;
-    align-items: center; gap: 10px;
-    font-size: 13px; color: #64748B;
-  }
+  .print-logo { display: flex !important; align-items: center; gap: 7px; font-size: 11px; color: #64748B; }
   .print-logo-icon {
-    width: 36px; height: 36px;
+    width: 26px; height: 26px;
     background: linear-gradient(135deg, #F59E0B, #D97706);
-    border-radius: 8px;
-    display: flex !important;
-    align-items: center; justify-content: center;
-    font-size: 18px; color: #fff;
+    border-radius: 5px;
+    display: flex !important; align-items: center; justify-content: center;
+    font-size: 13px;
   }
 
-  .detail-title { font-size: 22px !important; color: #1E293B !important; margin-bottom: 4px !important; }
-  .detail-location { font-size: 13px !important; color: #64748B !important; }
-  .badge { font-size: 11px !important; padding: 3px 10px !important; }
+  .detail-header { margin-bottom: 8px !important; }
+  .detail-title { font-size: 18px !important; color: #1E293B !important; margin: 4px 0 2px !important; line-height: 1.2 !important; }
+  .detail-location { font-size: 11px !important; color: #64748B !important; margin: 2px 0 !important; }
+  .badge { font-size: 10px !important; padding: 2px 7px !important; }
 
+  /* Seções — SEM break-inside para não criar espaço em branco */
   .section-card {
     border: 1px solid #E2E8F0 !important;
-    border-radius: 10px !important;
-    break-inside: avoid;
-    margin-bottom: 16px !important;
+    border-radius: 6px !important;
+    margin-bottom: 6px !important;
     background: #fff !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
   .section-head {
-    background: #F8FAFC !important;
-    padding: 10px 16px !important;
-    font-size: 11px !important;
+    background: #F1F5F9 !important;
+    padding: 5px 10px !important;
+    font-size: 9px !important;
     font-weight: 700 !important;
     color: #475569 !important;
-    letter-spacing: .05em !important;
+    letter-spacing: .06em !important;
     text-transform: uppercase !important;
     border-bottom: 1px solid #E2E8F0 !important;
   }
-  .section-body { padding: 14px 16px !important; }
-  .section-empty { color: #94A3B8 !important; font-style: italic !important; font-size: 13px !important; }
+  .section-body { padding: 8px 10px !important; font-size: 13px !important; line-height: 1.6 !important; }
+  .section-empty { color: #94A3B8 !important; font-style: italic !important; font-size: 12px !important; }
 
-  .grid2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 16px !important; }
-  .grid2auto { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; gap: 10px !important; }
+  /* Grids */
+  .grid2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 6px !important; margin-bottom: 6px !important; }
+  .grid-pauta { grid-template-columns: 1fr !important; gap: 4px !important; margin-bottom: 6px !important; }
+  .grid2auto { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; gap: 6px !important; }
 
+  /* Encaminhamentos */
   .item-card {
     background: #F8FAFC !important;
     border: 1px solid #E2E8F0 !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    margin-bottom: 8px !important;
-    break-inside: avoid;
+    border-radius: 6px !important;
+    padding: 7px 10px !important;
+    margin-bottom: 5px !important;
+    page-break-inside: avoid;
   }
-  .item-title { font-size: 13px !important; color: #1E293B !important; }
-  .item-meta { font-size: 11px !important; color: #64748B !important; margin-top: 4px !important; display: flex; gap: 12px; flex-wrap: wrap; }
+  .item-title { font-size: 12px !important; color: #1E293B !important; }
+  .item-meta { font-size: 10px !important; color: #64748B !important; margin-top: 3px !important; display: flex; gap: 10px; flex-wrap: wrap; }
   .item-status-pending { color: #F59E0B !important; }
   .item-status-done    { color: #22C55E !important; }
 
+  /* Participantes */
   .participant-card {
     background: #F8FAFC !important;
     border: 1px solid #E2E8F0 !important;
-    border-radius: 8px !important;
-    padding: 10px 12px !important;
-    break-inside: avoid;
+    border-radius: 6px !important;
+    padding: 7px 10px !important;
+    page-break-inside: avoid;
   }
-  .participant-name { font-size: 13px !important; font-weight: 700 !important; color: #1E293B !important; }
-  .participant-org  { font-size: 11px !important; color: #F59E0B !important; }
-  .participant-contact { font-size: 11px !important; color: #475569 !important; margin-top: 4px !important; }
+  .participant-name { font-size: 12px !important; font-weight: 700 !important; color: #1E293B !important; }
+  .participant-org  { font-size: 10px !important; color: #F59E0B !important; }
+  .participant-contact { font-size: 10px !important; color: #475569 !important; margin-top: 3px !important; }
 
-  .doc-item {
-    background: #F8FAFC !important;
+  /* Documentos */
+  .doc-item { background: #F8FAFC !important; border: 1px solid #E2E8F0 !important; border-radius: 6px !important; padding: 6px 10px !important; margin-bottom: 4px !important; }
+  .doc-name { font-size: 12px !important; }
+  .doc-desc { font-size: 10px !important; color: #64748B !important; }
+
+  .ink-print-img {
+    max-width: 100% !important;
+    max-height: 260px !important;
     border: 1px solid #E2E8F0 !important;
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-    margin-bottom: 6px !important;
+    border-radius: 6px !important;
+    background: #fff !important;
+    display: block !important;
   }
-  .doc-name { font-size: 13px !important; }
-  .doc-desc { font-size: 11px !important; color: #64748B !important; }
 
   .print-footer {
     display: block !important;
-    margin-top: 32px;
-    padding-top: 12px;
+    margin-top: 16px;
+    padding-top: 8px;
     border-top: 1px solid #E2E8F0;
-    font-size: 11px;
+    font-size: 10px;
     color: #94A3B8;
     text-align: center;
   }
@@ -617,7 +696,7 @@
     </button>
     <div class="logo">📋</div>
     <div>
-      <div class="header-title">Gestão SUBGD</div>
+      <div class="header-title">Sistema de Gestão da SUBGD</div>
       <div class="header-sub" id="meeting-count">0 REGISTROS</div>
     </div>
   </div>
@@ -626,7 +705,7 @@
       <span class="od-indicator off" id="od-indicator"></span>
       <span id="od-btn-label">Drive</span>
     </button>
-    <button class="btn btn-ghost" id="btn-ai-search" style="gap:6px">🔎 <span class="btn-label-search">Busca IA</span></button>    <button class="btn btn-ghost" id="btn-settings">⚙️ <span class="btn-label-cfg">Config</span></button>
+    <button class="btn btn-ghost" id="btn-ai-search" style="gap:6px">🔎 <span class="btn-label-search">Busca</span></button>    <button class="btn btn-ghost" id="btn-settings">⚙️ <span class="btn-label-cfg">Config</span></button>
     <button class="btn btn-primary" id="btn-new">+ <span class="btn-label-new">Nova Reunião</span></button>
   </div>
 </header>
@@ -673,28 +752,27 @@
 
 <!-- AI SEARCH MODAL -->
 <div class="modal-overlay hidden" id="modal-ai-search">
-  <div class="modal" style="max-width:620px;width:calc(100vw - 32px);max-height:85vh;display:flex;flex-direction:column">
+  <div class="modal" style="max-width:680px;width:calc(100vw - 32px);max-height:88vh;display:flex;flex-direction:column">
     <div class="modal-header" style="flex-shrink:0">
-      <div class="modal-title">🔎 Busca Inteligente</div>
+      <div class="modal-title">🔎 Busca</div>
       <button class="modal-close" id="btn-ai-search-close">×</button>
     </div>
-    <div style="flex-shrink:0;padding:0 0 14px">
-      <div style="display:flex;gap:8px">
-        <input class="inp" id="ai-search-input" placeholder="Ex: reuniões sobre licitação, encaminhamentos do João, reuniões de março..." style="flex:1;font-size:14px"/>
-        <button class="btn btn-primary" id="btn-ai-search-send" style="flex-shrink:0;padding:9px 18px;font-size:14px">Buscar</button>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px" id="ai-search-suggestions">
-        <button class="chip" data-sq="Quais reuniões tiveram encaminhamentos vencidos?">encaminhamentos vencidos</button>
-        <button class="chip" data-sq="Liste as reuniões realizadas com mais participantes">mais participantes</button>
-        <button class="chip" data-sq="Quais pautas se repetiram em mais de uma reunião?">pautas recorrentes</button>
-        <button class="chip" data-sq="Mostre os encaminhamentos pendentes por responsável">pendentes por responsável</button>
-        <button class="chip" data-sq="Qual foi a reunião mais recente?">última reunião</button>
+    <div style="flex-shrink:0;padding:0 0 12px">
+      <input class="inp" id="ai-search-input" placeholder="Buscar por título, pauta, participante, órgão, encaminhamento, data..." style="font-size:15px;padding:12px 14px"/>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap" id="search-filter-chips">
+        <button class="chip active" data-sf="todos">Todos os campos</button>
+        <button class="chip" data-sf="titulo">Título</button>
+        <button class="chip" data-sf="participantes">Participantes</button>
+        <button class="chip" data-sf="pauta">Pauta</button>
+        <button class="chip" data-sf="encaminhamentos">Encaminhamentos</button>
+        <button class="chip" data-sf="data">Data</button>
       </div>
     </div>
-    <div id="ai-search-result" style="flex:1;overflow-y:auto;padding:14px 16px;background:var(--bg);border-radius:10px;border:1px solid var(--bg3);font-size:14px;line-height:1.8;color:var(--text);min-height:80px;white-space:pre-wrap">
-      <span style="color:var(--text3);font-style:italic">Faça uma pergunta sobre suas reuniões...</span>
+    <div id="ai-search-result" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:120px">
+      <div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:24px">Digite algo para buscar nas suas reuniões...</div>
     </div>
-    <div style="flex-shrink:0;margin-top:12px;display:flex;justify-content:flex-end">
+    <div style="flex-shrink:0;margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+      <span id="search-count" style="font-size:12px;color:var(--text3);font-family:var(--font-mono)"></span>
       <button class="btn btn-ghost" id="btn-ai-search-cancel">Fechar</button>
     </div>
   </div>
@@ -725,12 +803,16 @@
           </div>
           <div style="font-size:11px;color:var(--text3);padding:8px 10px;background:var(--bg);border-radius:6px;font-family:var(--font-mono);margin-top:8px;line-height:1.6">
             📁 Cada reunião é salva como arquivo separado em:<br>
-            <span style="color:#93c5fd">Google Drive/GestaoSUBGD/subgd.json</span>
+            <span style="color:#93c5fd">Google Drive/GestaoSUBGD/gestao-subgd.json</span>
           </div>
           <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-            <button class="btn btn-green btn-sm" id="btn-od-sync-now" style="flex:1;justify-content:center;min-width:110px">🔄 Sincronizar agora</button>
-            <button class="btn btn-ghost btn-sm" id="btn-od-import" style="flex:1;justify-content:center;min-width:110px">⬇️ Carregar do Drive</button>
+            <button class="btn btn-green btn-sm" id="btn-od-sync-now" style="flex:1;justify-content:center;min-width:110px">⬇️ Buscar do Drive</button>
+            <button class="btn btn-blue btn-sm" id="btn-od-upload" style="flex:1;justify-content:center;min-width:110px">⬆️ Enviar ao Drive</button>
             <button class="btn btn-ghost btn-sm" id="btn-od-disconnect" style="border-color:#7f1d1d;color:#fca5a5">Sair</button>
+          </div>
+          <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-top:8px;line-height:1.7;padding:8px 10px;background:var(--bg);border-radius:6px">
+            ⬇️ <strong>Buscar do Drive</strong> — substitui os dados locais pelos do Drive<br>
+            ⬆️ <strong>Enviar ao Drive</strong> — substitui os dados do Drive pelos locais
           </div>
         </div>
 
@@ -942,10 +1024,10 @@ let deleteTarget = null;
 
 // ===== GOOGLE DRIVE — GOOGLE IDENTITY SERVICES + DRIVE API =====
 // Requer hospedagem em https:// com Client ID OAuth de Aplicativo da Web.
-// Os dados são salvos em Google Drive/GestaoSUBGD/subgd.json
+// Os dados são salvos em Google Drive/GestaoSUBGD/gestao-subgd.json
 
 const GD_FOLDER = 'GestaoSUBGD';
-const GD_FILENAME = 'subgd.json';
+const GD_FILENAME = 'gestao-subgd.json';
 const GD_SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 const DRIVE_API = 'https://www.googleapis.com/drive/v3';
 const DRIVE_UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
@@ -991,7 +1073,13 @@ async function ensureGoogleAccess(interactive = false) {
     });
   }
   return await new Promise((resolve, reject) => {
+    // Timeout: se a renovação silenciosa travar (comum em mobile), rejeita após 8s
+    const timeout = interactive ? null : setTimeout(() => {
+      reject(new Error('TOKEN_TIMEOUT'));
+    }, 8000);
+
     googleTokenClient.callback = async (resp) => {
+      if (timeout) clearTimeout(timeout);
       if (resp?.error) { reject(new Error(resp.error)); return; }
       if (!resp?.access_token) { reject(new Error('Google não retornou token de acesso.')); return; }
       const expiresIn = Number(resp.expires_in || 3600);
@@ -1002,7 +1090,7 @@ async function ensureGoogleAccess(interactive = false) {
     };
     try {
       googleTokenClient.requestAccessToken({ prompt: interactive ? 'consent' : '' });
-    } catch (e) { reject(e); }
+    } catch (e) { if (timeout) clearTimeout(timeout); reject(e); }
   });
 }
 
@@ -1011,14 +1099,32 @@ async function odAccessToken(interactive = false) {
 }
 
 async function gfetch(url, opts = {}) {
-  const token = await odAccessToken(false);
+  // Garante token válido antes de cada chamada
+  let token;
+  try {
+    token = await odAccessToken(false);
+  } catch(e) {
+    // Renovação silenciosa falhou — marca sync como pendente e avisa
+    if (e.message === 'TOKEN_TIMEOUT' || e.message?.includes('token')) {
+      settings.syncPending = true;
+      saveSettings();
+      setOdStatus('err', 'Reconectar');
+      throw new Error('Sessão expirada. Clique em "Drive" no cabeçalho e reconecte para sincronizar.');
+    }
+    throw e;
+  }
   const res = await fetch(url, {
     ...opts,
     headers: { Authorization: 'Bearer ' + token, ...(opts.headers || {}) }
   });
   if (res.status === 401 && !opts.__retried) {
-    await ensureGoogleAccess(true);
-    return gfetch(url, { ...opts, __retried: true });
+    // Token rejeitado pelo servidor — limpa e pede reconexão
+    odClearTokens();
+    settings.syncPending = true;
+    saveSettings();
+    setOdStatus('err', 'Reconectar');
+    updateOdUI();
+    throw new Error('Sessão expirada. Clique em "Drive" e faça login novamente.');
   }
   return res;
 }
@@ -1128,10 +1234,18 @@ async function odSaveMeeting(meeting) {
   }
 }
 
-async function odDeleteMeeting(id) {
+async function odDeleteMeeting() {
+  setOdStatus('syncing', 'Salvando…');
   try {
     await odSaveIndex();
-  } catch(e) {}
+    settings.odLastSync = new Date().toISOString();
+    saveSettings();
+    setOdStatus('on', 'Drive ✓');
+    updateLastSync();
+  } catch(e) {
+    setOdStatus('err', 'Erro ao salvar');
+    showToast('⚠️ Exclusão salva localmente, mas falhou no Drive. Abra as Configurações e clique em "Sincronizar agora" para tentar novamente.', 'info');
+  }
 }
 
 async function odSyncAll() {
@@ -1139,6 +1253,7 @@ async function odSyncAll() {
   try {
     await odSaveIndex();
     settings.odLastSync = new Date().toISOString();
+    settings.syncPending = false;
     saveSettings();
     setOdStatus('on', 'Drive ✓');
     updateLastSync();
@@ -1213,8 +1328,17 @@ async function odConnect() {
     codeBox.style.display = 'none';
     updateOdUI();
     document.getElementById('modal-settings').classList.add('hidden');
-    showToast('✅ Google Drive conectado! Carregando reuniões…');
-    await odLoadAll();
+
+    // Se há dados pendentes para enviar (editados offline), envia primeiro
+    if (settings.syncPending) {
+      showToast('🔄 Reconectado! Enviando alterações pendentes ao Drive…');
+      await odSyncAll();
+      settings.syncPending = false;
+      saveSettings();
+    } else {
+      showToast('✅ Google Drive conectado! Carregando reuniões…');
+      await odLoadAll();
+    }
   } catch (e) {
     codeBox.style.display = 'none';
     setupArea.style.display = 'block';
@@ -1262,9 +1386,14 @@ function updateOdUI() {
     if (ne) ne.textContent = odUserInfo?.name || 'Conta Google';
     if (ee) ee.textContent = odUserInfo?.email || '—';
     updateLastSync();
-    setOdStatus('on', 'Drive ✓');
+    // Mostra indicador de pendente se houver alterações não sincronizadas
+    if (settings.syncPending) {
+      setOdStatus('err', 'Drive ⚠️');
+    } else {
+      setOdStatus('on', 'Drive ✓');
+    }
   } else {
-    setOdStatus('off', 'Drive');
+    setOdStatus('off', settings.syncPending ? 'Drive ⚠️' : 'Drive');
     const inp = document.getElementById('od-client-id-input');
     if (inp && settings.odClientId) inp.value = settings.odClientId;
   }
@@ -1361,9 +1490,10 @@ async function restoreOdSession() {
         await ensureGoogleAccess(false);
         await odLoadAll();
       } catch(e2) {
-        // Renovação silenciosa falhou — usuário precisa reconectar manualmente
-        setOdStatus('off', 'Reconectar');
+        // Renovação silenciosa falhou — avisa que dados podem estar desatualizados
+        setOdStatus('err', 'Reconectar');
         updateOdUI();
+        showToast('⚠️ Não foi possível sincronizar com o Drive. Os dados exibidos podem estar desatualizados. Clique em "Reconectar" nas Configurações.', 'info');
       }
     }
   }
@@ -1438,6 +1568,76 @@ function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function stripHtml(s) {
+  return String(s||'').replace(/<[^>]*>/g, ' ');
+}
+
+function sanitizeRichHtml(input) {
+  const allowed = new Set(['B','STRONG','I','EM','U','BR','P','DIV','UL','OL','LI']);
+  const tpl = document.createElement('template');
+  tpl.innerHTML = String(input || '');
+  const clean = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.textContent || '');
+    if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
+    const tag = node.tagName.toUpperCase();
+    if (!allowed.has(tag)) {
+      const frag = document.createDocumentFragment();
+      Array.from(node.childNodes).forEach(child => frag.appendChild(clean(child)));
+      return frag;
+    }
+    const el = document.createElement(tag.toLowerCase());
+    Array.from(node.childNodes).forEach(child => el.appendChild(clean(child)));
+    return el;
+  };
+  const out = document.createElement('div');
+  Array.from(tpl.content.childNodes).forEach(child => out.appendChild(clean(child)));
+  return out.innerHTML
+    .replace(/<div>/gi, '<p>')
+    .replace(/<\/div>/gi, '</p>')
+    .replace(/<p>(\s|&nbsp;|<br>)*<\/p>/gi, '')
+    .trim();
+}
+
+function plainToRichHtml(text) {
+  const value = String(text || '');
+  if (!value.trim()) return '';
+  if (/<\/?[a-z][\s\S]*>/i.test(value)) return sanitizeRichHtml(value);
+  return value
+    .split(/\n{2,}/)
+    .map(part => `<p>${escHtml(part).replace(/\n/g,'<br>')}</p>`)
+    .join('');
+}
+
+function renderRichContent(value, emptyText) {
+  const rich = plainToRichHtml(value);
+  return rich ? `<div class="rich-content">${rich}</div>` : `<div class="section-empty">${emptyText}</div>`;
+}
+
+function bindRichEditor(container, editorId, initialValue, onChange) {
+  const editor = container.querySelector('#' + editorId);
+  if (!editor) return;
+  editor.innerHTML = plainToRichHtml(initialValue);
+  const sync = () => { onChange(sanitizeRichHtml(editor.innerHTML)); };
+  editor.addEventListener('input', sync);
+  container.querySelectorAll(`[data-editor="${editorId}"]`).forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      editor.focus();
+      const cmd = btn.dataset.cmd;
+      if (cmd === 'clear') {
+        document.execCommand('removeFormat');
+        document.execCommand('formatBlock', false, 'p');
+      } else if (cmd === 'paragraph') {
+        document.execCommand('formatBlock', false, 'p');
+      } else {
+        document.execCommand(cmd, false, null);
+      }
+      sync();
+    });
+  });
+}
+
+
 function selectMeeting(id) {
   selectedId = id;
   const m = meetings.find(m=>m.id===id);
@@ -1457,10 +1657,10 @@ function renderDetail(m) {
     <div class="print-header">
       <div class="print-logo">
         <div class="print-logo-icon">📋</div>
-        <div><div style="font-weight:700;color:#1E293B;font-size:14px">Gestão SUBGD</div><div style="font-size:11px;color:#94A3B8">Documento gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
+        <div><div style="font-weight:700;color:#1E293B;font-size:14px">Sistema de Gestão da SUBGD</div><div style="font-size:11px;color:#94A3B8">Documento gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
       </div>
-      <div style="text-align:right;font-size:12px;color:#94A3B8">
-        ${fmtDate(m.date)} ${m.date?new Date(m.date+'T'+(m.time||'00:00')).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):''}
+      <div style="text-align:right;font-size:11px;color:#94A3B8">
+        ${fmtDate(m.date)}${m.time ? ' · ' + m.time : ''}
       </div>
     </div>
     <div class="detail-header">
@@ -1481,14 +1681,20 @@ function renderDetail(m) {
       </div>
     </div>
 
-    <div class="grid2" style="margin-bottom:20px">
+    <div class="grid2 grid-pauta" style="margin-bottom:20px;align-items:start">
       <div class="section-card" style="margin-bottom:0">
         <div class="section-head">📋 Pauta / Objetivos</div>
-        <div class="section-body">${m.agenda?`<div style="font-size:15px;line-height:1.8;color:#475569;white-space:pre-wrap">${escHtml(m.agenda)}</div>`:'<div class="section-empty">Nenhuma pauta registrada</div>'}</div>
+        <div class="section-body">
+          ${renderRichContent(m.agenda, 'Nenhuma pauta registrada')}
+          ${m.agendaInk ? `<div style="margin-top:12px"><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:6px">✍️ Escrita à mão na pauta</div><img src="${m.agendaInk}" alt="Anotação manuscrita da pauta" class="ink-preview ink-print-img"/></div>` : ''}
+        </div>
       </div>
       <div class="section-card" style="margin-bottom:0">
         <div class="section-head">📝 Anotações e Discussões</div>
-        <div class="section-body">${m.notes?`<div style="font-size:15px;line-height:1.8;color:#475569;white-space:pre-wrap">${escHtml(m.notes)}</div>`:'<div class="section-empty">Nenhuma anotação</div>'}</div>
+        <div class="section-body">
+          ${renderRichContent(m.notes, 'Nenhuma anotação')}
+          ${m.notesInk ? `<div style="margin-top:12px"><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:6px">✍️ Escrita à mão em anotações e discussões</div><img src="${m.notesInk}" alt="Anotação manuscrita de anotações e discussões" class="ink-preview ink-print-img"/></div>` : ''}
+        </div>
       </div>
     </div>
 
@@ -1576,7 +1782,7 @@ function renderDetail(m) {
       </div>
     </div>
     <div class="print-footer">
-      Gestão SUBGD · Documento gerado em ${new Date().toLocaleString('pt-BR')} · Confidencial
+      Sistema de Gestão da SUBGD · Documento gerado em ${new Date().toLocaleString('pt-BR')} · Confidencial
     </div>
   `;
 
@@ -1602,7 +1808,7 @@ function renderDetail(m) {
       if (!meeting || !meeting.actions[idx]) return;
       meeting.actions[idx].done = !meeting.actions[idx].done;
       localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
-      if (odTokenData) odSaveMeeting(meeting);
+      if (hasValidGoogleToken()) odSaveMeeting(meeting);
       renderSidebar();
       renderDetail(meeting);
     });
@@ -1632,7 +1838,7 @@ function renderDetail(m) {
           phone: document.getElementById('edit-p-phone').value.trim()
         };
         localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
-        if (odTokenData) odSaveMeeting(meeting);
+        if (hasValidGoogleToken()) odSaveMeeting(meeting);
         document.getElementById('modal-edit-participant').classList.add('hidden');
         renderSidebar();
         renderDetail(meeting);
@@ -1643,7 +1849,7 @@ function renderDetail(m) {
         if (!confirm(`Remover "${p.name}" da reunião?`)) return;
         meeting.participants.splice(idx, 1);
         localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
-        if (odTokenData) odSaveMeeting(meeting);
+        if (hasValidGoogleToken()) odSaveMeeting(meeting);
         document.getElementById('modal-edit-participant').classList.add('hidden');
         renderSidebar();
         renderDetail(meeting);
@@ -1674,7 +1880,7 @@ function renderDetail(m) {
           done:        document.getElementById('edit-action-done').checked
         };
         localStorage.setItem('gestao-subgd-data', JSON.stringify(meetings));
-        if (odTokenData) odSaveMeeting(meeting);
+        if (hasValidGoogleToken()) odSaveMeeting(meeting);
         document.getElementById('modal-edit-action').classList.add('hidden');
         renderSidebar();
         renderDetail(meeting);
@@ -1702,7 +1908,7 @@ function confirmDelete(m) {
 function openForm(meeting) {
   formData = meeting ? JSON.parse(JSON.stringify(meeting)) : {
     title:'', date:'', location:'', status:'Agendada',
-    agenda:'', notes:'', participants:[], actions:[], documents:[], references:[]
+    agenda:'', agendaInk:'', notes:'', notesInk:'', participants:[], actions:[], documents:[], references:[]
   };
   formTab = 'geral';
   renderForm();
@@ -1768,6 +1974,7 @@ function renderTabContent() {
           <label class="lbl">Local / Link</label>
           <input class="inp" id="f-location" value="${escHtml(formData.location||'')}" placeholder="Ex: Sala de reuniões A / Meet"/>
         </div>
+        <div style="margin-top:6px;font-size:12px;color:var(--text3)">Arraste o canto inferior direito para expandir o campo.</div>
       </div>
     `;
     c.querySelector('#f-title').oninput = e => { formData.title = e.target.value; };
@@ -1780,15 +1987,62 @@ function renderTabContent() {
     c.innerHTML = `
       <div style="margin-bottom:16px">
         <label class="lbl">Pauta / Objetivos</label>
-        <textarea class="inp" id="f-agenda" rows="6" placeholder="Descreva os tópicos da pauta, objetivos e ordem do dia...">${escHtml(formData.agenda||'')}</textarea>
+        <div class="rt-wrap">
+          <div class="rt-toolbar">
+            <button class="rt-btn" type="button" data-editor="f-agenda" data-cmd="bold"><strong>B</strong></button>
+            <button class="rt-btn" type="button" data-editor="f-agenda" data-cmd="italic"><em>I</em></button>
+            <button class="rt-btn" type="button" data-editor="f-agenda" data-cmd="underline"><u>U</u></button>
+            <button class="rt-btn" type="button" data-editor="f-agenda" data-cmd="insertUnorderedList">• Lista</button>
+            <button class="rt-btn" type="button" data-editor="f-agenda" data-cmd="insertOrderedList">1. Lista</button>
+            <button class="rt-btn" type="button" data-editor="f-agenda" data-cmd="paragraph">¶</button>
+            <button class="rt-btn" type="button" data-editor="f-agenda" data-cmd="clear">Limpar</button>
+            <button class="rt-btn ink-tool" type="button" data-ink-target="agenda" data-ink-tool="eraser">🩹 Borracha</button>
+            <button class="rt-btn" type="button" data-ink-target="agenda" data-ink-action="toggle">Ativar caneta</button>
+            <button class="rt-btn" type="button" data-ink-target="agenda" data-ink-action="clear">Limpar traço</button>
+          </div>
+          <div class="rt-stage" data-ink-target="agenda">
+            <div class="rt-editor" id="f-agenda" contenteditable="true" data-placeholder="Descreva os tópicos da pauta, objetivos e ordem do dia..."></div>
+            <canvas id="agenda-ink-canvas" class="rt-ink-canvas"></canvas>
+          </div>
+        </div>
+        <div style="margin-top:6px;font-size:12px;color:var(--text3)">No mesmo campo, você pode digitar normalmente ou ativar a caneta para escrever por cima.</div>
       </div>
       <div>
         <label class="lbl">Anotações e Discussões</label>
-        <textarea class="inp" id="f-notes" rows="8" placeholder="Registre as discussões, decisões tomadas e observações...">${escHtml(formData.notes||'')}</textarea>
+        <div class="rt-wrap">
+          <div class="rt-toolbar">
+            <button class="rt-btn" type="button" data-editor="f-notes" data-cmd="bold"><strong>B</strong></button>
+            <button class="rt-btn" type="button" data-editor="f-notes" data-cmd="italic"><em>I</em></button>
+            <button class="rt-btn" type="button" data-editor="f-notes" data-cmd="underline"><u>U</u></button>
+            <button class="rt-btn" type="button" data-editor="f-notes" data-cmd="insertUnorderedList">• Lista</button>
+            <button class="rt-btn" type="button" data-editor="f-notes" data-cmd="insertOrderedList">1. Lista</button>
+            <button class="rt-btn" type="button" data-editor="f-notes" data-cmd="paragraph">¶</button>
+            <button class="rt-btn" type="button" data-editor="f-notes" data-cmd="clear">Limpar</button>
+            <button class="rt-btn ink-tool" type="button" data-ink-target="notes" data-ink-tool="eraser">🩹 Borracha</button>
+            <button class="rt-btn" type="button" data-ink-target="notes" data-ink-action="toggle">Ativar caneta</button>
+            <button class="rt-btn" type="button" data-ink-target="notes" data-ink-action="clear">Limpar traço</button>
+          </div>
+          <div class="rt-stage" data-ink-target="notes">
+            <div class="rt-editor" id="f-notes" contenteditable="true" data-placeholder="Registre as discussões, decisões tomadas e observações..."></div>
+            <canvas id="notes-ink-canvas" class="rt-ink-canvas"></canvas>
+          </div>
+        </div>
       </div>
     `;
-    c.querySelector('#f-agenda').oninput = e => { formData.agenda = e.target.value; };
-    c.querySelector('#f-notes').oninput = e => { formData.notes = e.target.value; };
+    bindRichEditor(c, 'f-agenda', formData.agenda || '', value => { formData.agenda = value; });
+    bindRichEditor(c, 'f-notes', formData.notes || '', value => { formData.notes = value; });
+    initInkCanvas(c, {
+      target: 'agenda',
+      canvasId: 'agenda-ink-canvas',
+      editorId: 'f-agenda',
+      storageKey: 'agendaInk'
+    });
+    initInkCanvas(c, {
+      target: 'notes',
+      canvasId: 'notes-ink-canvas',
+      editorId: 'f-notes',
+      storageKey: 'notesInk'
+    });
   }
 
   else if (formTab === 'participantes') {
@@ -2008,12 +2262,18 @@ function saveForm() {
     selectedId = formData.id;
   }
   save();
-  if (odTokenData) odSaveMeeting(formData);
+  if (hasValidGoogleToken()) {
+    odSaveMeeting(formData);
+    showToast('Reunião salva com sucesso!');
+  } else {
+    settings.syncPending = true;
+    saveSettings();
+    showToast('💾 Salvo localmente. Reconecte ao Drive para sincronizar.', 'info');
+  }
   renderSidebar();
   const m = meetings.find(m=>m.id===selectedId);
   if (m) renderDetail(m);
   showView('detail');
-  showToast('Reunião salva com sucesso!');
 }
 
 // ===== DASHBOARD =====
@@ -2109,7 +2369,7 @@ function renderDashboard() {
 
   el.innerHTML = `
   <div class="dash-greeting dash-animate">
-    <h2>📋 Painel de Reuniões</h2>
+    <h2>📋 Painel de Gestão da SUBGD</h2>
     <p>${dateStr}</p>
   </div>
 
@@ -2305,7 +2565,7 @@ function noKeyMessage(err) {
 function exportMeetingPDF(m) {
   // Guarda título original
   const origTitle = document.title;
-  document.title = (m.title || 'Reunião') + ' — ' + fmtDate(m.date);
+  document.title = (m.title || 'Sistema de Gestão da SUBGD') + ' — ' + fmtDate(m.date);
   window.print();
   document.title = origTitle;
 }
@@ -2334,47 +2594,288 @@ function exportContactsCSV(m) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `contatos_${(m.title||'reuniao').replace(/\s+/g,'_')}_${m.date||'sem_data'}.csv`;
+  a.download = `contatos_subgd_${(m.title||'reuniao').replace(/\s+/g,'_')}_${m.date||'sem_data'}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   showToast(`📊 ${participants.length} contato(s) exportados!`);
 }
 
-// ===== BUSCA IA =====
-async function aiSearch(query) {
+// ===== BUSCA INSTANTÂNEA =====
+let searchFilter = 'todos';
+
+function highlight(text, term) {
+  if (!term) return escHtml(text);
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return escHtml(text).replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background:#FEF08A;color:#1E293B;border-radius:2px;padding:0 1px">$1</mark>');
+}
+
+function runSearch() {
+  const q = (document.getElementById('ai-search-input').value || '').trim().toLowerCase();
   const resultEl = document.getElementById('ai-search-result');
-  if (!query.trim()) return;
+  const countEl  = document.getElementById('search-count');
 
-  resultEl.innerHTML = '<span style="color:var(--text3)">🔎 Analisando suas reuniões...</span>';
+  if (!q) {
+    resultEl.innerHTML = '<div style="color:var(--text3);font-size:13px;font-style:italic;text-align:center;padding:24px">Digite algo para buscar nas suas reuniões...</div>';
+    countEl.textContent = '';
+    return;
+  }
 
-  const resumo = meetings.map(m => ({
-    id: m.id,
-    titulo: m.title || 'Sem título',
-    data: m.date || '',
-    status: m.status || '',
-    local: m.location || '',
-    participantes: (m.participants||[]).map(p=>p.name).join(', '),
-    pauta: m.agenda || '',
-    notas: m.notes || '',
-    encaminhamentos: (m.actions||[]).map(a =>
-      `${a.text}${a.responsible?' (resp: '+a.responsible+')':''}${a.deadline?' prazo: '+a.deadline:''}${a.done?' [concluído]':' [pendente]'}`
-    ).join('; ')
-  }));
+  // Filtra reuniões que batem com o termo no campo selecionado
+  const results = meetings.map(m => {
+    const fields = {
+      titulo:          (m.title || '').toLowerCase(),
+      pauta:           (stripHtml(m.agenda || '') + ' ' + stripHtml(m.notes || '')).toLowerCase(),
+      participantes:   (m.participants || []).map(p => [p.name, p.org, p.email, p.phone].filter(Boolean).join(' ')).join(' ').toLowerCase(),
+      encaminhamentos: (m.actions || []).map(a => [a.text, a.responsible].filter(Boolean).join(' ')).join(' ').toLowerCase(),
+      data:            (m.date || '') + ' ' + fmtDate(m.date).toLowerCase(),
+      local:           (m.location || '').toLowerCase(),
+    };
+    const todos = Object.values(fields).join(' ');
+    const haystack = searchFilter === 'todos' ? todos : (fields[searchFilter] || todos);
+    if (!haystack.includes(q)) return null;
 
-  const systemPrompt = `Você é um assistente especializado em análise de reuniões institucionais.
-O usuário tem ${meetings.length} reunião(ões) cadastrada(s) no sistema.
-Aqui estão os dados completos em JSON:
-${JSON.stringify(resumo, null, 2)}
+    // Trechos onde o termo aparece (para mostrar contexto)
+    const matches = [];
+    if (searchFilter === 'todos' || searchFilter === 'titulo') {
+      if (fields.titulo.includes(q)) matches.push({ label: 'Título', text: m.title || '' });
+    }
+    if (searchFilter === 'todos' || searchFilter === 'pauta') {
+      const combined = stripHtml(m.agenda || '') + (m.notes ? '\n' + stripHtml(m.notes) : '');
+      if (fields.pauta.includes(q)) {
+        const idx = fields.pauta.indexOf(q);
+        const snippet = combined.slice(Math.max(0, idx-40), idx+80).replace(/\n/g,' ');
+        matches.push({ label: 'Pauta', text: '...' + snippet + '...' });
+      }
+    }
+    if (searchFilter === 'todos' || searchFilter === 'participantes') {
+      (m.participants||[]).forEach(p => {
+        const s = [p.name,p.org,p.email,p.phone].filter(Boolean).join(' ').toLowerCase();
+        if (s.includes(q)) matches.push({ label: '👤 ' + (p.name||''), text: [p.org, p.email, p.phone].filter(Boolean).join(' · ') });
+      });
+    }
+    if (searchFilter === 'todos' || searchFilter === 'encaminhamentos') {
+      (m.actions||[]).forEach(a => {
+        const s = [a.text, a.responsible].filter(Boolean).join(' ').toLowerCase();
+        if (s.includes(q)) matches.push({ label: a.done ? '✅' : '⏳', text: a.text + (a.responsible ? ' — ' + a.responsible : '') });
+      });
+    }
+    if (searchFilter === 'todos' || searchFilter === 'data') {
+      if (fields.data.includes(q)) matches.push({ label: 'Data', text: fmtDate(m.date) });
+    }
+    if (!matches.length) matches.push({ label: 'Correspondência', text: '' });
+    return { m, matches };
+  }).filter(Boolean);
 
-Responda em português brasileiro. Seja direto, objetivo e bem organizado.
-Quando listar reuniões, use formato de lista. Quando fizer análises, destaque pontos importantes.
-Se a pergunta não tiver relação com os dados, diga educadamente.`;
+  countEl.textContent = results.length === 0 ? 'Nenhum resultado' : `${results.length} reunião(ões) encontrada(s)`;
 
-  try {
-    const reply = await callAI(systemPrompt, query);
-    resultEl.textContent = reply;
-  } catch(e) {
-    resultEl.innerHTML = `<span style="color:#EF4444">${noKeyMessage(e)}</span>`;
+  if (results.length === 0) {
+    resultEl.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text3)"><div style="font-size:32px;margin-bottom:8px">🔍</div>Nenhuma reunião encontrada para "<strong>${escHtml(q)}</strong>"</div>`;
+    return;
+  }
+
+  resultEl.innerHTML = results.map(({ m, matches }) => `
+    <div class="meeting-search-card" data-id="${m.id}" style="background:var(--bg2);border:1px solid var(--bg3);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .15s">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">${highlight(m.title||'Sem título', q)}</div>
+        ${badge(m.status)}
+      </div>
+      <div style="font-size:11px;font-family:var(--font-mono);color:var(--text3);margin-bottom:10px">
+        📅 ${fmtDate(m.date)}${m.location ? ' · 📍 ' + escHtml(m.location) : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        ${matches.map(mt => `
+          <div style="display:flex;gap:8px;font-size:12px">
+            <span style="color:var(--accent);font-family:var(--font-mono);white-space:nowrap;flex-shrink:0">${escHtml(mt.label)}</span>
+            <span style="color:var(--text2)">${mt.text ? highlight(mt.text, q) : ''}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  resultEl.querySelectorAll('.meeting-search-card').forEach(card => {
+    card.addEventListener('mouseenter', () => card.style.borderColor = 'var(--accent)');
+    card.addEventListener('mouseleave', () => card.style.borderColor = 'var(--bg3)');
+    card.addEventListener('click', () => {
+      document.getElementById('modal-ai-search').classList.add('hidden');
+      selectMeeting(card.dataset.id);
+    });
+  });
+}
+
+function canvasHasInk(canvas) {
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const { width, height } = canvas;
+  if (!width || !height) return false;
+  const data = ctx.getImageData(0, 0, width, height).data;
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] > 0) return true;
+  }
+  return false;
+}
+
+function serializeCanvas(canvas) {
+  return canvasHasInk(canvas) ? canvas.toDataURL('image/png') : '';
+}
+
+function initInkCanvas(container, config) {
+  const { target, canvasId, editorId, storageKey } = config;
+  const canvas = container.querySelector(`#${canvasId}`);
+  const editor = container.querySelector(`#${editorId}`);
+  const stage = container.querySelector(`.rt-stage[data-ink-target="${target}"]`);
+  if (!canvas || !editor || !stage) return;
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  let drawing = false;
+  let inkEnabled = false;
+  let currentTool = 'pen';
+  let lastX = 0;
+  let lastY = 0;
+
+  function syncInkUI() {
+    const toggleBtn = container.querySelector(`[data-ink-target="${target}"][data-ink-action="toggle"]`);
+    const eraserBtn = container.querySelector(`.ink-tool[data-ink-target="${target}"][data-ink-tool="eraser"]`);
+    canvas.classList.toggle('ink-enabled', inkEnabled);
+    editor.classList.toggle('ink-mode', inkEnabled);
+    editor.contentEditable = inkEnabled ? 'false' : 'true';
+    if (toggleBtn) toggleBtn.textContent = inkEnabled ? 'Desativar caneta' : 'Ativar caneta';
+    if (eraserBtn) eraserBtn.classList.toggle('ink-btn-active', currentTool === 'eraser');
+  }
+
+  function getStageSize() {
+    const width = Math.max(stage.clientWidth, editor.scrollWidth, 1);
+    const height = Math.max(stage.clientHeight, editor.scrollHeight, 180);
+    stage.style.height = `${height}px`;
+    return { width, height };
+  }
+
+  function drawStoredImage(dataUrl, width, height) {
+    if (!dataUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+    };
+    img.src = dataUrl;
+  }
+
+  function resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const size = getStageSize();
+    const prev = formData[storageKey] || serializeCanvas(canvas);
+    canvas.width = Math.max(1, Math.floor(size.width * ratio));
+    canvas.height = Math.max(1, Math.floor(size.height * ratio));
+    canvas.style.width = `${size.width}px`;
+    canvas.style.height = `${size.height}px`;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(ratio, ratio);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.imageSmoothingEnabled = true;
+    ctx.clearRect(0, 0, size.width, size.height);
+    if (prev) drawStoredImage(prev, size.width, size.height);
+  }
+
+  function saveInk() {
+    formData[storageKey] = serializeCanvas(canvas);
+  }
+
+  function getPos(ev) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+  }
+
+  function applyTool() {
+    if (currentTool === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = 18;
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#111827';
+    }
+  }
+
+  function start(ev) {
+    if (!inkEnabled) return;
+    ev.preventDefault();
+    drawing = true;
+    canvas.setPointerCapture?.(ev.pointerId);
+    const pos = getPos(ev);
+    lastX = pos.x;
+    lastY = pos.y;
+    applyTool();
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+  }
+
+  function move(ev) {
+    if (!drawing || !inkEnabled) return;
+    ev.preventDefault();
+    const pos = getPos(ev);
+    applyTool();
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function end(ev) {
+    if (!drawing) return;
+    ev.preventDefault();
+    drawing = false;
+    canvas.releasePointerCapture?.(ev.pointerId);
+    saveInk();
+    if (currentTool === 'eraser') {
+      currentTool = 'pen';
+      syncInkUI();
+    }
+  }
+
+  canvas.addEventListener('pointerdown', start);
+  canvas.addEventListener('pointermove', move);
+  canvas.addEventListener('pointerup', end);
+  canvas.addEventListener('pointercancel', end);
+  canvas.addEventListener('pointerleave', end);
+
+  container.querySelectorAll(`.ink-tool[data-ink-target="${target}"]`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const requestedTool = btn.dataset.inkTool || 'pen';
+      currentTool = currentTool === requestedTool ? 'pen' : requestedTool;
+      if (!inkEnabled) inkEnabled = true;
+      syncInkUI();
+    });
+  });
+
+  container.querySelector(`[data-ink-target="${target}"][data-ink-action="toggle"]`)?.addEventListener('click', () => {
+    inkEnabled = !inkEnabled;
+    if (!inkEnabled) currentTool = 'pen';
+    syncInkUI();
+    if (!inkEnabled) editor.focus();
+  });
+
+  container.querySelector(`[data-ink-target="${target}"][data-ink-action="clear"]`)?.addEventListener('click', () => {
+    const size = getStageSize();
+    ctx.clearRect(0, 0, size.width, size.height);
+    formData[storageKey] = '';
+    currentTool = 'pen';
+    syncInkUI();
+  });
+
+  editor.addEventListener('input', () => {
+    requestAnimationFrame(resizeCanvas);
+  });
+
+  resizeCanvas();
+  syncInkUI();
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => resizeCanvas());
+    ro.observe(stage);
+    ro.observe(editor);
+  } else {
+    window.addEventListener('resize', resizeCanvas, { passive: true });
   }
 }
 
@@ -2402,7 +2903,11 @@ document.getElementById('btn-settings-save').onclick  = () => document.getElemen
 document.getElementById('btn-od-connect').onclick    = odConnect;
 document.getElementById('btn-od-disconnect').onclick = odDisconnect;
 document.getElementById('btn-od-sync-now').onclick   = () => { odLoadAll(); document.getElementById('modal-settings').classList.add('hidden'); };
-document.getElementById('btn-od-import').onclick     = () => { odLoadAll(); document.getElementById('modal-settings').classList.add('hidden'); };
+document.getElementById('btn-od-upload').onclick     = async () => {
+  if (!confirm(`Enviar ${meetings.length} reunião(ões) deste dispositivo para o Drive?\n\nIsso irá SUBSTITUIR os dados que estão no Drive.`)) return;
+  document.getElementById('modal-settings').classList.add('hidden');
+  await odSyncAll();
+};
 
 document.getElementById('btn-onedrive').onclick = () => {
   updateOdUI();
@@ -2411,18 +2916,23 @@ document.getElementById('btn-onedrive').onclick = () => {
 
 document.getElementById('btn-delete-close').onclick = () => { document.getElementById('modal-delete').classList.add('hidden'); deleteTarget=null; };
 document.getElementById('btn-delete-cancel').onclick = () => { document.getElementById('modal-delete').classList.add('hidden'); deleteTarget=null; };
-document.getElementById('btn-delete-confirm').onclick = () => {
+document.getElementById('btn-delete-confirm').onclick = async () => {
   if (deleteTarget) {
     const idToDelete = deleteTarget;
     meetings = meetings.filter(m=>m.id!==idToDelete);
     save();
-    if (odTokenData) odDeleteMeeting(idToDelete);
     selectedId=null;
     deleteTarget=null;
     document.getElementById('modal-delete').classList.add('hidden');
     renderSidebar();
     showView('empty');
     showToast('Reunião removida.', 'info');
+    if (odTokenData || settings.odClientId) {
+      try {
+        await ensureGoogleAccess(false);
+      } catch(e) {}
+      await odDeleteMeeting();
+    }
   }
 };
 
@@ -2473,7 +2983,7 @@ function renderDashboard() {
   const stopwords = new Set(['de','a','o','e','em','para','da','do','com','que','uma','um','as','os','por','se','na','no','ao','não','é','como','sua','seu','mais','ser','dos','das','foram','para','esta','este','isso','essa','esse']);
   const wordCount = {};
   meetings.forEach(m => {
-    const text = ((m.title||'') + ' ' + (m.agenda||'')).toLowerCase();
+    const text = ((m.title||'') + ' ' + stripHtml(m.agenda||'')).toLowerCase();
     text.replace(/[^a-záàãâéêíóôõúüçñ\s]/gi,'').split(/\s+/).forEach(w => {
       if (w.length > 3 && !stopwords.has(w)) wordCount[w] = (wordCount[w]||0) + 1;
     });
@@ -2524,7 +3034,7 @@ function renderDashboard() {
 
   el.innerHTML = `
     <div class="dash-greeting">
-      <h1>📋 ${greeting}! Visão geral das reuniões</h1>
+      <h1>📋 ${greeting}! Visão geral da Gestão da SUBGD</h1>
       <p>${dateStr.charAt(0).toUpperCase()+dateStr.slice(1)}</p>
     </div>
 
@@ -2680,7 +3190,7 @@ function renderDashboard() {
 }
 
 // ===== RESPONSIVE SIDEBAR =====
-function isMobile() { return window.innerWidth <= 768; }
+function isMobile() { return window.innerWidth <= 1024; }
 
 function openSidebar() {
   document.getElementById('sidebar').classList.add('open');
@@ -2699,17 +3209,19 @@ function toggleSidebar() {
 
 document.getElementById('btn-ai-search').onclick = () => {
   document.getElementById('modal-ai-search').classList.remove('hidden');
-  document.getElementById('ai-search-input').focus();
+  setTimeout(() => document.getElementById('ai-search-input').focus(), 50);
 };
 document.getElementById('btn-ai-search-close').onclick  = () => document.getElementById('modal-ai-search').classList.add('hidden');
 document.getElementById('btn-ai-search-cancel').onclick = () => document.getElementById('modal-ai-search').classList.add('hidden');
-document.getElementById('btn-ai-search-send').onclick   = () => aiSearch(document.getElementById('ai-search-input').value);
-document.getElementById('ai-search-input').addEventListener('keydown', e => { if (e.key==='Enter') aiSearch(e.target.value); });
-document.querySelectorAll('[data-sq]').forEach(b => {
-  b.addEventListener('click', () => {
-    document.getElementById('ai-search-input').value = b.dataset.sq;
-    aiSearch(b.dataset.sq);
-  });
+document.getElementById('ai-search-input').addEventListener('input', runSearch);
+document.getElementById('ai-search-input').addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('modal-ai-search').classList.add('hidden'); });
+document.getElementById('search-filter-chips').addEventListener('click', e => {
+  const chip = e.target.closest('[data-sf]');
+  if (!chip) return;
+  searchFilter = chip.dataset.sf;
+  document.querySelectorAll('[data-sf]').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  runSearch();
 });
 document.getElementById('modal-ai-search').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-ai-search')) document.getElementById('modal-ai-search').classList.add('hidden');
